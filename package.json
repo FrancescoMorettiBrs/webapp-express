@@ -1,0 +1,23 @@
+{
+  "name": "webapp-express",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrancescoMorettiBrs/webapp-express.git"
+  },
+  "type": "module",
+  "author": "Moretti Francesco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FrancescoMorettiBrs/webapp-express/issues"
+  },
+  "homepage": "https://github.com/FrancescoMorettiBrs/webapp-express#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
