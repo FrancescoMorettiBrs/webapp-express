@@ -1,5 +1,4 @@
 import mysql from "mysql2";
-console.log("debug", process.env.DB_HOST);
 
 const connection = mysql.createConnection({
   host: process.env.DB_HOST,
