@@ -1,6 +1,6 @@
 import connection from "../db.js";
 
-const index = (req, res) => {
+const index = (req, res, next) => {
   const sql = `
     SELECT movies.*, ROUND(AVG(reviews.vote), 2) AS vote_avg
     FROM movies
@@ -10,12 +10,12 @@ const index = (req, res) => {
     `;
   connection.query(sql, (err, results) => {
     if (err) {
-      console.log(err);
+      return next(new Error(err));
     } else {
       const movies = results.map((curMovie) => {
         return {
           ...curMovie,
-          image:`${req.imagePath}/${curMovie.image}`,
+          image: `${req.imagePath}/${curMovie.image}`,
         };
       });
       res.json({
@@ -25,7 +25,7 @@ const index = (req, res) => {
   });
 };
 
-const show = (req, res) => {
+const show = (req, res, next) => {
   const id = req.params.id;
   const movieSql = `
     SELECT movies.*, ROUND(AVG(reviews.vote), 2) AS vote_avg
@@ -44,13 +44,14 @@ const show = (req, res) => {
 
   connection.query(movieSql, [id], (err, movieResults) => {
     if (err) {
-      console.log(err);
+      return next(new Error(err))
+    }
       if (movieResults.length === 0) {
         res.status(404).json({
           error: "Movie not found",
         });
       }
-    } else {
+     else {
       connection.query(reviewsSql, [id], (err, reviewsResults) => {
         res.json({
           data: {

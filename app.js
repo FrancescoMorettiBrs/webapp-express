@@ -1,11 +1,18 @@
 import express from "express";
 import router from "./routes/movies.js";
+import cors from "cors";
 import notFound from "./middlewares/notFound.js";
 import errorsHandler from "./middlewares/errorsHandler.js";
 import imagePath from "./middlewares/imagePath.js";
 
 const app = express();
 const port = process.env.SERVER_PORT;
+
+app.use(
+  cors({
+    origin: process.env.FE_URL,
+  })
+);
 
 app.use(express.json());
 app.use(express.static("public"));
