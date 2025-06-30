@@ -26,13 +26,13 @@ const index = (req, res, next) => {
 };
 
 const show = (req, res, next) => {
-  const id = req.params.id;
+  const slug = req.params.slug;
   const movieSql = `
     SELECT movies.*, ROUND(AVG(reviews.vote), 2) AS vote_avg
     FROM movies
     LEFT JOIN reviews
     ON movies.id = reviews.movie_id
-    WHERE movies.id = ?
+    WHERE movies.slug = ?
     GROUP BY movies.id;
     `;
 
@@ -42,7 +42,7 @@ const show = (req, res, next) => {
     WHERE reviews.movie_id = ?
     `;
 
-  connection.query(movieSql, [id], (err, movieResults) => {
+  connection.query(movieSql, [slug], (err, movieResults) => {
     if (err) {
       return next(new Error(err))
     }
@@ -52,10 +52,15 @@ const show = (req, res, next) => {
         });
       }
      else {
-      connection.query(reviewsSql, [id], (err, reviewsResults) => {
+      const movieData = movieResults[0]
+      connection.query(reviewsSql, [movieData.id], (err, reviewsResults) => {
+        if (err) {
+          return new Error(err)
+        }
         res.json({
           data: {
-            ...movieResults[0],
+            ...movieData,
+            image: movieData.image ? `${req.imagePath}/${movieData.image}` : null,
             reviews: reviewsResults,
           },
         });
