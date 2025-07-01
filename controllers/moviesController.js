@@ -1,3 +1,4 @@
+import slugify from "slugify";
 import connection from "../db.js";
 
 const index = (req, res, next) => {
@@ -84,7 +85,6 @@ const storeReviews = (req, res, next) => {
     }
 
     const { name, vote, text } = req.body;
-    console.log(name, vote, text);
 
     const newReviewSql = `
     INSERT INTO reviews (movie_id, name, vote, text)
@@ -95,10 +95,34 @@ const storeReviews = (req, res, next) => {
       if (err) {
         return next(new Error(err));
       }
-        return res.status(201).json({
+      return res.status(201).json({
         message: "Review created",
         id: results.insertId,
       });
+    });
+  });
+};
+
+const store = (req, res, next) => {
+  const { title, director, genre, abstract } = req.body;
+
+  const slug = slugify(title, {
+    lower: true,
+    strict: true,
+  });
+
+  const sql = `
+  INSERT INTO movies (slug, title, director, genre, abstract) 
+  VALUES (?, ?, ?, ?, ?)
+  `;
+
+  connection.query(sql, [slug, title, director, genre, abstract], (err, results) => {
+    if (err) {
+      return next(new Error(err));
+    }
+    return res.status(201).json({
+      id: results.insertId,
+      slug,
     });
   });
 };
@@ -107,6 +131,7 @@ const moviesController = {
   index,
   show,
   storeReviews,
+  store,
 };
 
 export default moviesController;
