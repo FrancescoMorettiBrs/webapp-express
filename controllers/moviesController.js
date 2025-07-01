@@ -44,18 +44,17 @@ const show = (req, res, next) => {
 
   connection.query(movieSql, [slug], (err, movieResults) => {
     if (err) {
-      return next(new Error(err))
+      return next(new Error(err));
     }
-      if (movieResults.length === 0) {
-        res.status(404).json({
-          error: "Movie not found",
-        });
-      }
-     else {
-      const movieData = movieResults[0]
+    if (movieResults.length === 0) {
+      res.status(404).json({
+        error: "Movie not found",
+      });
+    } else {
+      const movieData = movieResults[0];
       connection.query(reviewsSql, [movieData.id], (err, reviewsResults) => {
         if (err) {
-          return new Error(err)
+          return new Error(err);
         }
         res.json({
           data: {
@@ -69,9 +68,45 @@ const show = (req, res, next) => {
   });
 };
 
+const storeReviews = (req, res, next) => {
+  const { id } = req.params;
+
+  const movieSql = `
+  SELECT * FROM movies
+  WHERE id = ?
+  `;
+
+  connection.query(movieSql, [id], (err, movieResults) => {
+    if (movieResults.length === 0) {
+      return res.status(404).json({
+        error: "Film non trovato",
+      });
+    }
+
+    const { name, vote, text } = req.body;
+    console.log(name, vote, text);
+
+    const newReviewSql = `
+    INSERT INTO reviews (movie_id, name, vote, text)
+    VALUES (?, ?, ?, ?)
+    `;
+
+    connection.query(newReviewSql, [id, name, vote, text], (err, results) => {
+      if (err) {
+        return next(new Error(err));
+      }
+        return res.status(201).json({
+        message: "Review created",
+        id: results.insertId,
+      });
+    });
+  });
+};
+
 const moviesController = {
   index,
   show,
+  storeReviews,
 };
 
 export default moviesController;
